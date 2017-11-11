@@ -25,7 +25,7 @@ public class HeatMapImage {
     }
 
     public BufferedImage getImage(List<Report> reports, int x, int y, int zoom) {
-        Color[] colors = {Color.RED, new Color(0, 0, 0, 0)};
+        Color[] colors = {Color.RED, new Color(255, 0, 0, 0)};
         BufferedImage toReturn = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
         float[] fractions = {0.2f, 1.0f};
         float radius = 50;
