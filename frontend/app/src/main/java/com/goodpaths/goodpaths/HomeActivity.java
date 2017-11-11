@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.goodpaths.common.Report;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -31,6 +32,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.android.gms.maps.model.TileProvider;
 
 public class HomeActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -44,6 +47,10 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+        dangerPointPoster = new DangerPointPoster(this);
+
         setContentView(R.layout.activity_home);
 
 
@@ -72,7 +79,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dangerPointPoster.postCurrentPosition(ProblemType.ACCESSIBILITY);
+                dangerPointPoster.postCurrentPosition(Report.Type.ACCESSIBILITY);
             }
         });
         button.setEnabled(false);
@@ -140,6 +147,8 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .image(x)
                 .position(NEWARK, 8600f, 6500f);
         mMap.addGroundOverlay(newarkMap);
+        TileProvider tp = new CustomUrlTileProvider(512, 512);
+        mMap.addTileOverlay(new TileOverlayOptions().tileProvider(tp));
 
     }
 }
