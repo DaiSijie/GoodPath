@@ -1,5 +1,8 @@
 package com.goodpaths.goodpaths;
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
@@ -7,6 +10,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -42,5 +48,24 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng sydney = new LatLng(-34, 151);
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+
+        LatLng NEWARK = new LatLng(40.714086, -74.228697);
+
+        Bitmap b = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(b);
+        Paint p = new Paint();
+        p.setARGB(100, 0, 256, 0);
+        c.drawRect(0, 0, 100, 100, p);
+
+        BitmapDescriptor x = BitmapDescriptorFactory.fromBitmap(b);
+
+        GroundOverlayOptions newarkMap = new GroundOverlayOptions()
+                .image(x)
+                .position(NEWARK, 8600f, 6500f);
+        mMap.addGroundOverlay(newarkMap);
+
+
+
     }
 }
