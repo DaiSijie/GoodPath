@@ -19,7 +19,7 @@ import java.io.IOException;
 
 public class ServerAccess<Req, Resp> {
 
-    public static final String BASE_URL = "10.177.166.197:8080";
+    public static final String BASE_URL = "http://10.0.2.2:8080";
 
     public interface OnResultHandler<Resp> {
         void onSuccess(Resp response);
@@ -80,10 +80,6 @@ public class ServerAccess<Req, Resp> {
     }
 
     public static class ServerAccessException extends Exception {
-        public ServerAccessException(String message) {
-            super(message);
-        }
-
         public ServerAccessException(String message, Exception e) {
             super(message, e);
         }
