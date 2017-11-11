@@ -44,7 +44,7 @@ public class DangerController {
         crlf.setIncludePayload(true);
         return crlf;
     }
-    
+
     @RequestMapping("/getColor")
     public int getColor(@RequestParam(value="problemType") Report.Type problemType,
                         @RequestParam(value="latitudeTL") double latitudeTL, @RequestParam(value="longitudeTL") double longitudeTL,
@@ -100,7 +100,7 @@ public class DangerController {
     @RequestMapping(value = "/tileRequest", produces = MediaType.IMAGE_PNG_VALUE)
     @ResponseBody()
     public byte[] tileRequest(@RequestParam(value="x") int x,@RequestParam(value="y") int y, @RequestParam(value="zoom") int zoom) throws IOException {
-        BufferedImage bufferedImage = getTile(x,y,zoom);
+        BufferedImage bufferedImage = getTile(Report.Type.ACCESSIBILITY,x,y,zoom);
 
         //saveImage(bufferedImage,"tile.png");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -109,8 +109,14 @@ public class DangerController {
         return baos.toByteArray();
     }
 
-    private BufferedImage getTile(int x, int y, int zoom) {
+
+    private BufferedImage getTile(Report.Type problemType, int x, int y, int zoom){
+        Color[] colors = {Color.RED, new Color(0, 0, 0, 0)};
         BufferedImage toReturn = new BufferedImage(512, 512, BufferedImage.TYPE_INT_RGB);
+        float[] fractions = {0.2f, 1.0f};
+        float radius = 50;
+        Paint paint;
+
 
         Graphics2D g = toReturn.createGraphics();
 
@@ -118,23 +124,21 @@ public class DangerController {
         g.setColor(Color.RED);
 
         g.setRenderingHint (RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g.setPaint(Color.RED);
 
 
 
-        ArrayList<Report> reportsSelection = selectReports(x, y, zoom);
 
-        for(Report report : this.reports){
-            ArrayList<Double> position = onMap(report,x,y,zoom);
-            g.draw(new Ellipse2D.Double(position.get(0)-15, position.get(1)-15,30,30));
+        ArrayList<Report> reportsSelection = selectReports(problemType, x, y, zoom);
+
+        for(Report report : reportsSelection){
+            ArrayList<Float> position = onMap(report,x,y,zoom);
+            paint = new RadialGradientPaint(position.get(0),position.get(1), radius, fractions, colors);
+            g.setPaint(paint);
+            g.fill(new Ellipse2D.Double(position.get(0) - radius,position.get(1) - radius, radius*2, radius*2));
+            System.out.println(position.get(0)+" "+position.get(1));
         }
 
-
-
-
-
-
-
+        g.dispose();
         return toReturn;
     }
 
@@ -143,7 +147,7 @@ public class DangerController {
         ImageIO.write(bufferedImage, "png", outputfile);
     }
 
-    ArrayList<Report> selectReports(int x, int y, int zoom){
+    ArrayList<Report> selectReports(Report.Type problemType, int x, int y, int zoom){
         int x_TL = x;
         int x_BR = x+1;
         int y_TL = y;
@@ -163,8 +167,11 @@ public class DangerController {
         ArrayList<Report> selected = new ArrayList<>();
 
         for(Report report : this.reports){
-            if(isInside(report, locationTL.get(0), locationTL.get(1), locationBR.get(0), locationBR.get(1))){
+            System.out.println(report.getProblemtype()+" ?= "+problemType);
+            if(isInside(report, locationTL.get(0), locationTL.get(1), locationBR.get(0), locationBR.get(1)) &&
+                    report.getProblemtype() == problemType){
                 selected.add(report);
+                System.out.println("ok !");
             }
         }
         return selected;
@@ -196,8 +203,8 @@ public class DangerController {
         return location;
     }
 
-    ArrayList<Double> onMap(Report report, int x, int y, int z){
-        ArrayList<Double> Point = new ArrayList<Double>();
+    ArrayList<Float> onMap(Report report, int x, int y, int z){
+        ArrayList<Float> Point = new ArrayList<Float>();
         double latEvent = report.getLatitude();
         double lonEvent = report.getLongitude();
         ArrayList<Double> CoordTL = toWGS84(x, y, z);
@@ -206,8 +213,8 @@ public class DangerController {
         double latitudeTL =	CoordTL.get(1);
         double longitudeBR = CoordBR.get(0);
         double latitudeBR = CoordBR.get(1);
-        double posx = ((lonEvent-longitudeTL)*512/(longitudeBR-longitudeTL));
-        double posy = ((latitudeTL- latEvent)*512/(latitudeTL - latitudeBR));
+        float posx = (float) ((lonEvent-longitudeTL)*512/(longitudeBR-longitudeTL));
+        float posy = (float) ((latitudeTL- latEvent)*512/(latitudeTL - latitudeBR));
 
         Point.add(posx);
         Point.add(posy);
@@ -215,4 +222,14 @@ public class DangerController {
         return Point;
     }
 
+    ArrayList<Integer> toCoord(double longitude, double latitude, int zoom){
+        double n = java.lang.Math.pow(2,zoom);
+        int xtile = (int) (n*(longitude+180)/360);
+        int ytile = (int) (n* (1 - (java.lang.Math.log(java.lang.Math.tan(latitude/180*java.lang.Math.PI) + 1/java.lang.Math.cos(latitude/180*java.lang.Math.PI))/java.lang.Math.PI))/2);
+        ArrayList<Integer> Tile = new ArrayList<Integer>();
+        Tile.add(xtile);
+        Tile.add(ytile);
+        return Tile;
+
+    }
 }

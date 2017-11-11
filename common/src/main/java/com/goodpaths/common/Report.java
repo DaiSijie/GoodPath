@@ -10,8 +10,11 @@ public class Report {
     public Report(@JsonProperty("problemtype") Type problemtype,
                   @JsonProperty("latitude") double latitude,
                   @JsonProperty("longitude") double longitude) {
-        this.problemType = problemType;
+        this.problemType = problemtype;
         this.longitude = longitude;
+        if(this.longitude>180){
+            this.longitude = this.longitude - 360;
+        }
         this.latitude = latitude;
     }
 
