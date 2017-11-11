@@ -1,6 +1,6 @@
 package goodpath;
 
-import org.slf4j.LoggerFactory;
+import com.goodpaths.common.Report;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
@@ -13,8 +13,8 @@ public class DangerController {
     private final ArrayList<Report> reports = new ArrayList<Report>();
 
     @RequestMapping(path = "/addDanger", method = RequestMethod.POST)
-    public Report addDanger(@RequestParam(value="problemType") String reportType,@RequestParam(value="latitude") double latitude, @RequestParam(value="longitude") double longitude){
-        Report report = new Report(Report.Type.valueOf(reportType),latitude, longitude);
+    @ResponseBody
+    public Report addDanger(@RequestBody Report report){
         this.reports.add(report);
         return report;
     }

@@ -13,6 +13,7 @@ import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.Toast;
 
+import com.goodpaths.common.Report;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -50,7 +51,7 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dangerPointPoster.postCurrentPosition(ProblemType.ACCESSIBILITY);
+                dangerPointPoster.postCurrentPosition(Report.Type.ACCESSIBILITY);
             }
         });
         button.setEnabled(false);
