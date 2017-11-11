@@ -10,7 +10,7 @@ import com.goodpaths.goodpaths.networking.ServerAccess;
 import com.google.android.gms.maps.model.LatLng;
 
 public class DangerPointPoster {
-    private static final String URL = "http://10.0.2.2:8080/addDanger";
+    private static final String URL = ServerAccess.BASE_URL + "/addDanger";
 
     private final Context context;
     private final LocationProvider locationProvider;
