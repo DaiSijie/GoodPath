@@ -1,3 +1,5 @@
 include ':app'
 include ":common"
 project(":common").projectDir = file("../common")
+include ":backend"
+project(":backend").projectDir = file("../backend")
