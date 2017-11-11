@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.goodpaths.common.Report;
@@ -57,12 +58,21 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
-        Button settings = findViewById(R.id.settings);
+
+        ImageButton settings = findViewById(R.id.settings);
         settings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(HomeActivity.this, SettingsActivity.class);
                 startActivity(i);
+            }
+        });
+
+        ImageButton help = findViewById(R.id.help);
+        help.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                InfoOverlay.displayOverlay(HomeActivity.this);
             }
         });
 

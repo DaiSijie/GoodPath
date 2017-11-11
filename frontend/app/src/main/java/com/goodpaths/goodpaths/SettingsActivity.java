@@ -21,6 +21,8 @@ public class SettingsActivity extends AppCompatActivity {
 
         ImageButton back = findViewById(R.id.back);
 
+        ImageButton help = findViewById(R.id.help);
+
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -28,6 +30,13 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
+
+        help.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                InfoOverlay.displayOverlay(SettingsActivity.this);
+            }
+        });
 
     }
 
