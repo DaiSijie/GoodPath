@@ -37,31 +37,31 @@ public class HeatMapImage {
 
         g.setColor(Color.RED);
 
-        g.setRenderingHint (RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        for(Report report : reports){
-            Point<Float> position = onMap(report,x,y,zoom);
-            paint = new RadialGradientPaint(position.x ,position.y, radius, fractions, colors);
+        for (Report report : reports) {
+            Point<Float> position = onMap(report, x, y, zoom);
+            paint = new RadialGradientPaint(position.x, position.y, radius, fractions, colors);
             g.setPaint(paint);
-            g.fill(new Ellipse2D.Double(position.x - radius,position.y - radius, radius*2, radius*2));
-            System.out.println(position.x+" "+position.y);
+            g.fill(new Ellipse2D.Double(position.x - radius, position.y - radius, radius * 2, radius * 2));
+            System.out.println(position.x + " " + position.y);
         }
 
         g.dispose();
         return toReturn;
     }
 
-    private Point<Float> onMap(Report report, int x, int y, int z){
+    private Point<Float> onMap(Report report, int x, int y, int z) {
         double latEvent = report.getLatitude();
         double lonEvent = report.getLongitude();
         LngLat CoordTL = CoordinatesUtils.toWGS84(x, y, z);
-        LngLat CoordBR = CoordinatesUtils.toWGS84(x+1, y+1, z);
-        double longitudeTL =CoordTL.lng;
-        double latitudeTL =	CoordTL.lat;
+        LngLat CoordBR = CoordinatesUtils.toWGS84(x + 1, y + 1, z);
+        double longitudeTL = CoordTL.lng;
+        double latitudeTL = CoordTL.lat;
         double longitudeBR = CoordBR.lng;
         double latitudeBR = CoordBR.lat;
-        float posx = (float) ((lonEvent-longitudeTL)*512/(longitudeBR-longitudeTL));
-        float posy = (float) ((latitudeTL- latEvent)*512/(latitudeTL - latitudeBR));
+        float posx = (float) ((lonEvent - longitudeTL) * 512 / (longitudeBR - longitudeTL));
+        float posy = (float) ((latitudeTL - latEvent) * 512 / (latitudeTL - latitudeBR));
 
 
         return new Point<>(posx, posy);

@@ -26,40 +26,41 @@ public class HeatMap {
         return new HeatMapImage(imageSize).getImage(selected, x, y, zoom);
     }
 
-    private ArrayList<Report> selectReports(int x, int y, int zoom){
+    private ArrayList<Report> selectReports(int x, int y, int zoom) {
         int x_TL = x;
-        int x_BR = x+1;
+        int x_BR = x + 1;
         int y_TL = y;
-        int y_BR = y+1;
+        int y_BR = y + 1;
 
-        if(x_TL > 0){
+        if (x_TL > 0) {
             --x_TL;
         }
 
-        if(y_TL > 0){
+        if (y_TL > 0) {
             --y_TL;
         }
 
-        LngLat locationTL = CoordinatesUtils.toWGS84(x_TL, y_TL,  zoom);
-        LngLat locationBR = CoordinatesUtils.toWGS84(x_BR, y_BR,  zoom);
+        LngLat locationTL = CoordinatesUtils.toWGS84(x_TL, y_TL, zoom);
+        LngLat locationBR = CoordinatesUtils.toWGS84(x_BR, y_BR, zoom);
 
         ArrayList<Report> selected = new ArrayList<>();
 
-        for(Report report : this.reports){
-            if(isInside(report, locationTL.lng, locationTL.lat, locationBR.lng, locationBR.lat)){
+        for (Report report : this.reports) {
+            if (isInside(report, locationTL.lng, locationTL.lat, locationBR.lng, locationBR.lat)) {
                 selected.add(report);
             }
         }
         return selected;
     }
-    private boolean isInside(Report report,  double longitudeTL, double latitudeTL, double longitudeBR ,double latitudeBR) {
+
+    private boolean isInside(Report report, double longitudeTL, double latitudeTL, double longitudeBR, double latitudeBR) {
         double newLongitude = report.getLongitude();
 
         if (longitudeBR >= 360 && newLongitude < longitudeTL) {
             newLongitude += 360;
         }
 
-        return ( latitudeBR <= report.getLatitude() && report.getLatitude() <= latitudeTL &&
-                longitudeTL <= newLongitude && newLongitude <= longitudeBR );
+        return (latitudeBR <= report.getLatitude() && report.getLatitude() <= latitudeTL &&
+                longitudeTL <= newLongitude && newLongitude <= longitudeBR);
     }
 }
