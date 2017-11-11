@@ -2,6 +2,7 @@ package goodpath;
 
 import com.goodpaths.common.Report;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
@@ -10,8 +11,10 @@ import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 @RestController
@@ -94,14 +97,19 @@ public class DangerController {
 
     */
 
-    @RequestMapping("/tileRequest")
-    public void tileRequest(@RequestParam(value="x") int x,@RequestParam(value="y") int y, @RequestParam(value="zoom") int zoom) throws IOException {
+    @RequestMapping(value = "/tileRequest", produces = MediaType.IMAGE_PNG_VALUE)
+    @ResponseBody()
+    public byte[] tileRequest(@RequestParam(value="x") int x,@RequestParam(value="y") int y, @RequestParam(value="zoom") int zoom) throws IOException {
         BufferedImage bufferedImage = getTile(x,y,zoom);
 
-        saveImage(bufferedImage,"tile.png");
+        //saveImage(bufferedImage,"tile.png");
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(bufferedImage, "png", baos);
+
+        return baos.toByteArray();
     }
 
-    private BufferedImage getTile(int x, int y, int zoom){
+    private BufferedImage getTile(int x, int y, int zoom) {
         BufferedImage toReturn = new BufferedImage(512, 512, BufferedImage.TYPE_INT_RGB);
 
         Graphics2D g = toReturn.createGraphics();

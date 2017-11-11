@@ -25,6 +25,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.android.gms.maps.model.TileProvider;
 
 public class HomeActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -38,6 +40,8 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        dangerPointPoster = new DangerPointPoster(this);
 
         setContentView(R.layout.activity_home);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -119,6 +123,8 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
                 .image(x)
                 .position(NEWARK, 8600f, 6500f);
         mMap.addGroundOverlay(newarkMap);
+        TileProvider tp = new CustomUrlTileProvider(512, 512);
+        mMap.addTileOverlay(new TileOverlayOptions().tileProvider(tp));
 
     }
 }
