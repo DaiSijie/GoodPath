@@ -16,9 +16,15 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
+
+import goodpath.openstreetmap.Graph;
+import goodpath.openstreetmap.MyXmlHandler;
+import goodpath.utils.LngLat;
 
 @RestController
 public class DangerController {
@@ -26,6 +32,7 @@ public class DangerController {
     private static final Report.Type DEFAULT_TYPE = Report.Type.ACCESSIBILITY;
 
     private final Map<Report.Type, HeatMap> heatMaps = new HashMap<>();
+    private Graph graph;
 
     @RequestMapping(path = "/addDanger", method = RequestMethod.POST)
     @ResponseBody
@@ -54,6 +61,16 @@ public class DangerController {
     public void populate() {
         HeatMap heatmap = getHeatMap(DEFAULT_TYPE);
         heatmap.populateRandomly(7.44744, 46.948090);
+    }
+
+    @RequestMapping(value = "/test")
+    public List<LngLat> test() {
+        return graph.shortestPath(new LngLat(6.6623399, 46.5597872), new LngLat(6.6596945, 46.5560183));
+    }
+
+    @PostConstruct
+    public void init() {
+        graph = MyXmlHandler.parse();
     }
 
 
