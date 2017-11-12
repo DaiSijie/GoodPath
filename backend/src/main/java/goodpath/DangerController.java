@@ -84,6 +84,12 @@ public class DangerController {
         HeatMap heatmap = getHeatMap(Report.Type.HARASSMENT);
         heatmap.populateRandomly(7.44744, 46.948090);
     }
+    @RequestMapping(path = "/smartPopulate", method = RequestMethod.POST)
+    @ResponseBody
+    public void populate(@RequestBody Report report) {
+        HeatMap heatmap = getHeatMap(report.getProblemtype());
+        heatmap.populateSmartly(report.getLongitude(), report.getLatitude());
+    }
 
     @RequestMapping(value = "/test")
     public List<LngLat> test() {

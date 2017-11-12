@@ -94,6 +94,15 @@ public class HeatMap {
         }
     }
 
+    public void populateSmartly(double lng, double lat) {
+        final double delta = 0.0003;
+        LngLat coord = null;
+        for(int i = 0; i < 20; i++) {
+            coord = new LngLat(randomDouble(lng, delta), randomDouble(lat, delta));
+            reports.add(coord);
+        }
+    }
+
     private static double randomDouble(double value, double delta) {
         return value - delta + (Math.random() * 2 * delta);
     }
