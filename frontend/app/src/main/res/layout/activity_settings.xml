@@ -104,7 +104,8 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="GoodPath 2017 (LauzHack Project)\n Emile &amp; Martin Fontanet \n Lukas Kellenberger \n Gilbert Maystre"/>
+            android:text="GoodPath 2017 (LauzHack Project)\n\nEmile &amp; Martin Fontanet\nLukas Kellenberger\nGilbert Maystre\n\nCoded in less than 24h, with smile :-)"/>
+    </ScrollView>
 
 
 </LinearLayout>

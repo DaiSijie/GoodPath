@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.provider.SyncStateContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -15,7 +14,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -142,11 +140,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.map = map;
         TileProvider tp = new CustomUrlTileProvider(512, 512, this);
         tileOverlay = this.map.addTileOverlay(new TileOverlayOptions().tileProvider(tp).transparency(0.5f).fadeIn(true));
-
-
-        //GeoCodingAccess geo = new GeoCodingAccess(this);
-
-
     }
 
     @Override
@@ -174,6 +167,12 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void refresh(){
         if(tileOverlay != null){
             tileOverlay.clearTileCache();
+        }
+        if(lastAddedPath != null){
+            lastAddedPath.remove();
+        }
+        if(lastDestination != null){
+            lastDestination.remove();
         }
     }
 
@@ -235,6 +234,10 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             @Override
             public boolean onLongClick(View view) {
+                if(DangerTypeHelper.getInstance().getDangerType(HomeActivity.this) == DangerTypeHelper.ACCESSIBILITY){
+                    return false;
+                }
+
                 Vibrator v = (Vibrator) getSystemService(HomeActivity.VIBRATOR_SERVICE);
                 v.vibrate(500);
                 String uri = "tel:123456789";
@@ -258,8 +261,13 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         goFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int toPut = goBaseLayout.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE;
-                goBaseLayout.setVisibility(toPut);
+                if(DangerTypeHelper.getInstance().getDangerType(HomeActivity.this) == DangerTypeHelper.ACCESSIBILITY){
+                    showError("Not available for accessibility");
+                }
+                else {
+                    int toPut = goBaseLayout.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE;
+                    goBaseLayout.setVisibility(toPut);
+                }
             }
         });
 
@@ -366,6 +374,9 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         hideLoadingDialog();
         lastAddedPath = map.addPolyline(new PolylineOptions().addAll(path));
         lastAddedPath.setColor(0xff8fabd5);
+        map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(46.5343928, 6.60614029)));
+        map.animateCamera(CameraUpdateFactory.zoomTo(12f));
+
     }
 
     /*
