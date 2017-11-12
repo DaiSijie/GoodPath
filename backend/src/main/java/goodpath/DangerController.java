@@ -4,25 +4,26 @@ import com.goodpaths.common.Report;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
-import javax.imageio.ImageIO;
-
-import java.awt.*;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
+
 @RestController
 public class DangerController {
+
+    private static final Report.Type DEFAULT_TYPE = Report.Type.ACCESSIBILITY;
 
     private final Map<Report.Type, HeatMap> heatMaps = new HashMap<>();
 
@@ -41,12 +42,18 @@ public class DangerController {
             @RequestParam(value = "y") int y,
             @RequestParam(value = "zoom") int zoom) throws IOException {
 
-        BufferedImage bufferedImage = getTile(Report.Type.ACCESSIBILITY, x, y, zoom);
+        BufferedImage bufferedImage = getTile(DEFAULT_TYPE, x, y, zoom);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(bufferedImage, "png", baos);
 
         return baos.toByteArray();
+    }
+
+    @RequestMapping(value = "/populate")
+    public void populate() {
+        HeatMap heatmap = getHeatMap(DEFAULT_TYPE);
+        heatmap.populateRandomly(7.44744, 46.948090);
     }
 
 

@@ -65,9 +65,17 @@ public class HeatMap {
     }
 
     public void populateRandomly(double lng, double lat) {
-        final int delta = 1;
-        for(int i = 0; i < 100; i++) {
-            reports.add(new LngLat(randomDouble(lng, delta), randomDouble(lat, delta)));
+        final double delta = 0.1;
+        final double prob = 0.9;
+        final double deltaFactor = 1000;
+        LngLat coord = null;
+        for(int i = 0; i < 10000; i++) {
+            if (Math.random() < prob && coord != null) {
+                coord = new LngLat(randomDouble(coord.lng, delta/deltaFactor), randomDouble(coord.lat, delta/deltaFactor));
+            } else {
+                coord = new LngLat(randomDouble(lng, delta), randomDouble(lat, delta));
+            }
+            reports.add(coord);
         }
     }
 

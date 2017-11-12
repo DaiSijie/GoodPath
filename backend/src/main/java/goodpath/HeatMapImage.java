@@ -1,12 +1,9 @@
 package goodpath;
 
 
-import com.goodpaths.common.Report;
-
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Paint;
-import java.awt.RadialGradientPaint;
 import java.awt.RenderingHints;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
@@ -48,27 +45,25 @@ public class HeatMapImage {
         return (float)(size_in_meters/(156543.03392 * Math.cos(a.lat * Math.PI / 180) / Math.pow(2, zoom)));
     }
     public BufferedImage getImage(List<LngLat> reports, int x, int y, int zoom) {
-        Color[] colors = {new Color(255, 0, 0, 100), new Color(255, 0, 0, 0)};
         BufferedImage toReturn = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
-        float[] fractions = {0.7f, 1.0f};
         float radius = computeRadius(x,y,zoom);
-        System.out.println(radius);
-        Paint paint;
 
 
         Graphics2D g = toReturn.createGraphics();
 
 
-        g.setColor(Color.RED);
+        g.setColor(new Color(255, 0, 0, 100));
 
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        RenderingHints rh = new RenderingHints(null);
+        rh.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        rh.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        rh.put(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+        rh.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g.addRenderingHints(rh);
 
         for (LngLat report : reports) {
             Point<Float> position = onMap(report, x, y, zoom);
-            paint = new RadialGradientPaint(position.x, position.y, radius, fractions, colors);
-            g.setPaint(paint);
             g.fill(new Ellipse2D.Double(position.x - radius, position.y - radius, radius * 2, radius * 2));
-            System.out.println(position.x + " " + position.y);
         }
 
         g.dispose();
