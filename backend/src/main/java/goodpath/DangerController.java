@@ -21,6 +21,8 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
+import java.util.ArrayList;
+import goodpath.utils.LngLat;
 
 import goodpath.openstreetmap.Graph;
 import goodpath.openstreetmap.MyXmlHandler;
@@ -56,6 +58,20 @@ public class DangerController {
 
         return baos.toByteArray();
     }
+    @RequestMapping(value = "/pathRequest")
+    @ResponseBody()
+    public ArrayList<LngLat> pathRequest(
+            @RequestParam(value = "longDepart") double longDepart,
+            @RequestParam(value = "latDepart") double latDepart,
+            @RequestParam(value = "longEnd") double longEnd,
+            @RequestParam(value = "latEnd") double latEnd){
+        LngLat from = new LngLat(longDepart, latDepart);
+        LngLat to = new LngLat(longEnd, latEnd);
+        List<LngLat> path;
+        path = graph.shortestPath(from, to);
+
+        return (ArrayList<LngLat>) path;
+    }
 
     @RequestMapping(value = "/populate")
     public void populate() {
@@ -87,6 +103,7 @@ public class DangerController {
         crlf.setIncludePayload(true);
         return crlf;
     }
+
 
     private HeatMap getHeatMap(Report.Type problemType) {
         if (!heatMaps.containsKey(problemType)) {
