@@ -3,15 +3,13 @@ package goodpath;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Paint;
 import java.awt.RenderingHints;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
 import goodpath.utils.CoordinatesUtils;
-import goodpath.utils.LngLat;
+import com.goodpaths.common.MyLngLat;
 import goodpath.utils.Point;
 
 public class HeatMapImage {
@@ -28,11 +26,11 @@ public class HeatMapImage {
 
     private float computeRadius(int x, int y, int zoom){
         int size_in_meters = 20;
-        LngLat a = CoordinatesUtils.toWGS84(x, y, zoom);
+        MyLngLat a = CoordinatesUtils.toWGS84(x, y, zoom);
         return (float)(size_in_meters/(156543.03392 * Math.cos(a.lat * Math.PI / 180) / Math.pow(2, zoom)));
     }
 
-    public BufferedImage getImage(List<LngLat> reports, int x, int y, int zoom, Color color) {
+    public BufferedImage getImage(List<MyLngLat> reports, int x, int y, int zoom, Color color) {
         BufferedImage toReturn = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
         float radius = computeRadius(x,y,zoom);
 
@@ -49,7 +47,7 @@ public class HeatMapImage {
         rh.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         g.addRenderingHints(rh);
 
-        for (LngLat report : reports) {
+        for (MyLngLat report : reports) {
             Point<Float> position = onMap(report, x, y, zoom);
             g.fill(new Ellipse2D.Double(position.x - radius, position.y - radius, radius * 2, radius * 2));
         }
@@ -57,11 +55,11 @@ public class HeatMapImage {
         return toReturn;
     }
 
-    private Point<Float> onMap(LngLat report, int x, int y, int z) {
+    private Point<Float> onMap(MyLngLat report, int x, int y, int z) {
         double latEvent = report.lat;
         double lonEvent = report.lng;
-        LngLat CoordTL = CoordinatesUtils.toWGS84(x, y, z);
-        LngLat CoordBR = CoordinatesUtils.toWGS84(x + 1, y + 1, z);
+        MyLngLat CoordTL = CoordinatesUtils.toWGS84(x, y, z);
+        MyLngLat CoordBR = CoordinatesUtils.toWGS84(x + 1, y + 1, z);
         double longitudeTL = CoordTL.lng;
         double latitudeTL = CoordTL.lat;
         double longitudeBR = CoordBR.lng;

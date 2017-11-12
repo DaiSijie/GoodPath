@@ -22,7 +22,7 @@ public class HomeActivityImageHelper {
         return pins;
     }
 
-    private static void buildPins(){
+    private static void buildPins() {
         pins = Bitmap.createBitmap(40, 40, Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(pins);
         Paint p = new Paint();

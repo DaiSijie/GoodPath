@@ -4,22 +4,20 @@ package goodpath.openstreetmap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.PriorityQueue;
 
-import goodpath.utils.LngLat;
-import goodpath.utils.Tuple;
+import com.goodpaths.common.MyLngLat;
 
 public class ShortestPath {
     private final Graph graph;
     private final OSMNode start;
     private final OSMNode end;
 
-    private final Set<Long> allNodes;
-    private final Map<Long, Tuple<Long, Double>> values;
+    private final PriorityQueue<Value> values;
 
+    private final Map<Long, Value> valueMap;
     private boolean success = false;
 
     public ShortestPath(Graph graph, OSMNode start, OSMNode end) {
@@ -27,89 +25,104 @@ public class ShortestPath {
         this.start = start;
         this.end = end;
 
-        this.allNodes = new HashSet<>(graph.getNodeKeys());
-        this.values = new HashMap<>();
+        this.values = new PriorityQueue<>();
+        this.valueMap = new HashMap<>();
     }
 
     public void compute() {
-        values.put(start.getId(), new Tuple<>(-1L, 0.0));
+        Value s = new Value(start.getId(), -1, 0);
+        values.add(s);
+        valueMap.put(start.getId(), s);
 
-        while(!allNodes.isEmpty()) {
-            if(allNodes.size() % 1000 == 0)
-                System.out.println(allNodes.size());
+        while (!values.isEmpty()) {
+            Value current = values.poll();
+            long u = current.id;
 
-            long u = findMin();
-            if(u == end.getId()) {
-                success = true;
-                return;
-            } else if (u == -1) {
+            if (u == end.getId()) {
                 return;
             }
 
-            double distU = getDist(u);
-            allNodes.remove(u);
-
-            for(Edge edge: graph.getEdges(u)) {
-                double alt = distU + edge.getDistance();
-                long n = edge.getOtherNode(u);
-                double nDist = getDist(n);
-                if(alt < nDist) {
-                    values.put(n, new Tuple<>(u, alt));
+            for(Edge e: graph.getEdges(u)) {
+                long vId = e.getOtherNode(u);
+                Value v = valueMap.get(vId);
+                double alt = getDist(u) + e.getDistance();
+                if (v == null) {
+                    v = new Value(vId, u, alt);
+                    valueMap.put(vId, v);
+                    values.add(v);
+                } else {
+                    double distV = getDist(vId);
+                    if (alt < distV) {
+                        values.remove(v);
+                        v.distance = alt;
+                        v.previous = u;
+                        values.add(v);
+                    }
                 }
             }
         }
     }
 
     public List<OSMNode> getPath() {
-        if(!success) {
+        if(!valueMap.containsKey(end.getId())){
             return Collections.emptyList();
         }
 
+        List<Long> reversePath = new ArrayList<>();
         long current = end.getId();
-        List<OSMNode> reversePath = new ArrayList<>();
-
-        while(current != -1) {
-            reversePath.add(graph.getNode(current));
-            current = values.get(current).x;
+        while (current != -1) {
+            reversePath.add(current);
+            current = valueMap.get(current).previous;
         }
+
         List<OSMNode> path = new ArrayList<>(reversePath.size());
         for(int i = reversePath.size() - 1; i >= 0; i--) {
-            path.add(reversePath.get(i));
+            path.add(graph.getNode(reversePath.get(i)));
         }
 
         return path;
     }
 
-    private long findMin() {
-        double min = Double.POSITIVE_INFINITY;
-        long minNode = -1;
-        for(long node: allNodes) {
-            double dist = getDist(node);
-            if(dist < min) {
-                min = dist;
-                minNode = node;
-            }
-        }
 
-        return minNode;
-    }
-
-    private double getDist(long node) {
-        if(!values.containsKey(node)) {
-            return Double.POSITIVE_INFINITY;
+    private double getDist(long id) {
+        if(valueMap.containsKey(id)) {
+            return valueMap.get(id).distance;
         } else {
-            return values.get(node).y;
+            return Double.POSITIVE_INFINITY;
         }
     }
 
-    public boolean inLausanne(LngLat destination){
+    public boolean inLausanne(MyLngLat destination){
         if(destination.lng < 6.67264938354492 && destination.lng > 6.542530059814453){
             if(destination.lat < 46.54653595517069 && destination.lat > 46.50968788814508){
                 return true;
             }
         }
         return false;
-
     }
+
+
+    private static class Value implements Comparable<Value> {
+        long id;
+        long previous;
+        double distance;
+
+        public Value(long id, long previous, double distance) {
+            this.id = id;
+            this.previous = previous;
+            this.distance = distance;
+        }
+
+        @Override
+        public int compareTo(Value value) {
+            int distComp = Double.compare(distance, value.distance);
+            if(distComp == 0) {
+                return Long.compare(id, value.id);
+            } else {
+                return distComp;
+            }
+        }
+    }
+
 
 }

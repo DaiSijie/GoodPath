@@ -1,21 +1,21 @@
 package goodpath.openstreetmap;
 
-import goodpath.utils.LngLat;
+import com.goodpaths.common.MyLngLat;
 
 public class OSMNode {
     private final long id;
-    private final LngLat coord;
+    private final MyLngLat coord;
 
     public OSMNode(long id, double lng, double lat) {
         this.id = id;
-        this.coord = new LngLat(lng, lat);
+        this.coord = new MyLngLat(lng, lat);
     }
 
     public long getId() {
         return id;
     }
 
-    public LngLat getCoord() {
+    public MyLngLat getCoord() {
         return coord;
     }
 }

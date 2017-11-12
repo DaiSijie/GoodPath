@@ -3,6 +3,7 @@ package com.goodpaths.goodpaths.networking;
 
 import android.content.Context;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -19,7 +20,8 @@ import java.io.IOException;
 
 public class ServerAccess<Req, Resp> {
 
-    public static final String BASE_URL = "http://128.179.153.24:8080";
+    public static final String BASE_URL = "http://10.0.2.2:8080";
+    public static final int MY_SOCKET_TIMEOUT_MS = 100000;
 
     public interface OnResultHandler<Resp> {
         void onSuccess(Resp response);
@@ -64,7 +66,11 @@ public class ServerAccess<Req, Resp> {
     public void makeRequest(Req data) throws ServerAccessException {
         try {
             JSONObject requestData = requestToJson(data);
-            Request request = new JsonObjectRequest(method, url, requestData, responseListener, errorListener);
+            JsonObjectRequest request = new JsonObjectRequest(method, url, requestData, responseListener, errorListener);
+            request.setRetryPolicy(new DefaultRetryPolicy(
+                    MY_SOCKET_TIMEOUT_MS,
+                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             requestQueue.add(request);
 
         } catch (JSONException | IOException e) {
