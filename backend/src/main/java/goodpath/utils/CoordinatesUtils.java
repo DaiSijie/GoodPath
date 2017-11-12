@@ -27,17 +27,17 @@ public class CoordinatesUtils {
 
         return new Point<>(xtile, ytile);
     }
-    public double distanceOf(LngLat a, LngLat b) {
+    public static double distanceOf(LngLat a, LngLat b) {
         int R = 6378137;
         return 2
                 * R
-                * java.lang.Math.asin(java.lang.Math.sqrt(haversin(a.lat - b.lat)
-                + java.lang.Math.cos(b.lat)
-                * java.lang.Math.cos(a.lat)
-                * haversin(a.lng - b.lng)));
+                * java.lang.Math.asin(java.lang.Math.sqrt(haversin(Math.toRadians(a.lat - b.lat))
+                + java.lang.Math.cos(Math.toRadians(b.lat))
+                * java.lang.Math.cos(Math.toRadians(a.lat))
+                * haversin(Math.toRadians(a.lng - b.lng))));
     }
 
-    private double haversin(double x) {
+    private static double haversin(double x) {
         return java.lang.Math.pow(java.lang.Math.sin(x / 2), 2);
     }
 }
