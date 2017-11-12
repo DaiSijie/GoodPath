@@ -1,6 +1,5 @@
 package goodpath;
 
-import com.goodpaths.common.MyLngLat;
 import com.goodpaths.common.Report;
 import com.goodpaths.common.ShortestPathQuery;
 import com.goodpaths.common.ShortestPathResult;
@@ -19,7 +18,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -31,15 +29,13 @@ import goodpath.openstreetmap.MyXmlHandler;
 @RestController
 public class DangerController {
 
-    private static final Report.Type DEFAULT_TYPE = Report.Type.ACCESSIBILITY;
-
     private final Map<Report.Type, HeatMap> heatMaps = new HashMap<>();
-    private Graph graph;
+    private Map<Report.Type, Graph> graphs;
 
     @RequestMapping(path = "/addDanger", method = RequestMethod.POST)
     @ResponseBody
     public Report addDanger(@RequestBody Report report) {
-        getHeatMap(report.getProblemtype()).addReport(report, graph);
+        getHeatMap(report.getProblemtype()).addReport(report, graphs.get(report.getProblemtype()));
         return report;
     }
 
@@ -58,39 +54,39 @@ public class DangerController {
 
         return baos.toByteArray();
     }
+
     @RequestMapping(value = "/pathRequest", method = RequestMethod.POST)
     @ResponseBody()
     public ShortestPathResult pathRequest(@RequestBody ShortestPathQuery query) {
-        return new ShortestPathResult(graph.shortestPath(query.getStart(), query.getEnd()));
+        return new ShortestPathResult(graphs.get(query.getProblemtype()).shortestPath(query.getStart(), query.getEnd()));
     }
 
 
     @RequestMapping(value = "/populateAccessibility")
     public void populateAccessibility() {
         HeatMap heatmap = getHeatMap(Report.Type.ACCESSIBILITY);
-        heatmap.populateRandomly(6.63050615, 46.52187886, graph);
+        heatmap.populateRandomly(6.63050615, 46.52187886, graphs.get(Report.Type.ACCESSIBILITY));
     }
 
     @RequestMapping(value = "/populateHarassment")
     public void populateHarassment() {
         HeatMap heatmap = getHeatMap(Report.Type.HARASSMENT);
-        heatmap.populateRandomly(6.63050615, 46.52187886, graph);
+        heatmap.populateRandomly(6.63050615, 46.52187886, graphs.get(Report.Type.HARASSMENT));
     }
+
     @RequestMapping(path = "/smartPopulate", method = RequestMethod.POST)
     @ResponseBody
     public void populate(@RequestBody Report report) {
         HeatMap heatmap = getHeatMap(report.getProblemtype());
-        heatmap.populateSmartly(report.getLongitude(), report.getLatitude(), graph);
+        heatmap.populateSmartly(report.getLongitude(), report.getLatitude(), graphs.get(report.getProblemtype()));
     }
 
-    @RequestMapping(value = "/test")
-    public List<MyLngLat> test() {
-        return graph.shortestPath(new MyLngLat(6.57185196876, 46.521619004), new MyLngLat(6.56410574, 46.52414369));
-    }
 
     @PostConstruct
     public void init() {
-        graph = MyXmlHandler.parse();
+        graphs = new HashMap<>();
+        graphs.put(Report.Type.ACCESSIBILITY, MyXmlHandler.parse());
+        graphs.put(Report.Type.HARASSMENT, MyXmlHandler.parse());
     }
 
 

@@ -348,7 +348,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
         try {
-            loader.makeRequest(start, end);
+            loader.makeRequest(start, end, DangerTypeHelper.getInstance().getType(HomeActivity.this));
         } catch (ServerAccess.ServerAccessException e) {
             showError("Couldn't place request for best path");
         }

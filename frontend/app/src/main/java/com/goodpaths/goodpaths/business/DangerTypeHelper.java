@@ -3,6 +3,8 @@ package com.goodpaths.goodpaths.business;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.goodpaths.common.Report;
+
 public class DangerTypeHelper {
 
     // region constants
@@ -43,6 +45,15 @@ public class DangerTypeHelper {
             currentDanger = sharedPref.getInt(KEY_DANGER_TYPE, DEFAULT_DANGER_TYPE);
         }
         return currentDanger;
+    }
+
+    public Report.Type getType(Context context) {
+        int val = getDangerType(context);
+        if(val == HARASSMENT) {
+            return Report.Type.HARASSMENT;
+        } else {
+            return Report.Type.ACCESSIBILITY;
+        }
     }
 }
 

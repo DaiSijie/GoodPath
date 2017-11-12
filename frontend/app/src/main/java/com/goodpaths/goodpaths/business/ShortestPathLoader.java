@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.android.volley.Request;
 import com.goodpaths.common.MyLngLat;
+import com.goodpaths.common.Report;
 import com.goodpaths.common.ShortestPathQuery;
 import com.goodpaths.common.ShortestPathResult;
 import com.goodpaths.goodpaths.networking.ServerAccess;
@@ -19,8 +20,8 @@ public class ShortestPathLoader {
     }
 
 
-    public void makeRequest(LatLng start, LatLng end) throws ServerAccess.ServerAccessException {
-        ShortestPathQuery query = new ShortestPathQuery(toLngLat(start), toLngLat(end));
+    public void makeRequest(LatLng start, LatLng end, Report.Type problemType) throws ServerAccess.ServerAccessException {
+        ShortestPathQuery query = new ShortestPathQuery(toLngLat(start), toLngLat(end), problemType);
         serverAccess.makeRequest(query);
     }
 
