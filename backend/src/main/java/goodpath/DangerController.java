@@ -73,6 +73,7 @@ public class DangerController {
         return (ArrayList<LngLat>) path;
     }
 
+
     @RequestMapping(value = "/populateAccessibility")
     public void populateAccessibility() {
         HeatMap heatmap = getHeatMap(Report.Type.ACCESSIBILITY);

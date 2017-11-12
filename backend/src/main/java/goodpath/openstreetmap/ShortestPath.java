@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import goodpath.utils.LngLat;
 import goodpath.utils.Tuple;
 
 public class ShortestPath {
@@ -101,6 +102,14 @@ public class ShortestPath {
         }
     }
 
+    public boolean inLausanne(LngLat destination){
+        if(destination.lng < 6.67264938354492 && destination.lng > 6.542530059814453){
+            if(destination.lat < 46.54653595517069 && destination.lat > 46.50968788814508){
+                return true;
+            }
+        }
+        return false;
 
+    }
 
 }
