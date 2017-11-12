@@ -73,9 +73,15 @@ public class DangerController {
         return (ArrayList<LngLat>) path;
     }
 
-    @RequestMapping(value = "/populate")
-    public void populate() {
-        HeatMap heatmap = getHeatMap(DEFAULT_TYPE);
+    @RequestMapping(value = "/populateAccessibility")
+    public void populateAccessibility() {
+        HeatMap heatmap = getHeatMap(Report.Type.ACCESSIBILITY);
+        heatmap.populateRandomly(7.44744, 46.948090);
+    }
+
+    @RequestMapping(value = "/populateHarassment")
+    public void populateHarassment() {
+        HeatMap heatmap = getHeatMap(Report.Type.HARASSMENT);
         heatmap.populateRandomly(7.44744, 46.948090);
     }
 
