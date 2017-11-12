@@ -1,6 +1,9 @@
 package goodpath;
 
+import com.goodpaths.common.MyLngLat;
 import com.goodpaths.common.Report;
+import com.goodpaths.common.ShortestPathQuery;
+import com.goodpaths.common.ShortestPathResult;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
@@ -15,7 +18,6 @@ import org.springframework.web.filter.CommonsRequestLoggingFilter;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,8 +27,6 @@ import javax.imageio.ImageIO;
 
 import goodpath.openstreetmap.Graph;
 import goodpath.openstreetmap.MyXmlHandler;
-import com.goodpaths.common.MyLngLat;
-import com.goodpaths.common.ShortestPathQuery;
 
 @RestController
 public class DangerController {
@@ -58,10 +58,10 @@ public class DangerController {
 
         return baos.toByteArray();
     }
-    @RequestMapping(value = "/pathRequest")
+    @RequestMapping(value = "/pathRequest", method = RequestMethod.POST)
     @ResponseBody()
-    public List<MyLngLat> pathRequest(@RequestBody ShortestPathQuery query) {
-        return graph.shortestPath(query.getStart(), query.getEnd());
+    public ShortestPathResult pathRequest(@RequestBody ShortestPathQuery query) {
+        return new ShortestPathResult(graph.shortestPath(query.getStart(), query.getEnd()));
     }
 
 

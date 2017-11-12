@@ -15,7 +15,7 @@ public class ShortestPathLoader {
     private final ServerAccess<ShortestPathQuery, ShortestPathResult> serverAccess;
 
     public ShortestPathLoader(Context context, ServerAccess.OnResultHandler<ShortestPathResult> resultHandler) {
-        this.serverAccess = new ServerAccess<>(context, Request.Method.GET, URL, resultHandler, ShortestPathResult.class);
+        this.serverAccess = new ServerAccess<>(context, Request.Method.POST, URL, resultHandler, ShortestPathResult.class);
     }
 
 

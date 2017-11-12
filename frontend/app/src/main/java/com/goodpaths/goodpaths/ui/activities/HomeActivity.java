@@ -20,12 +20,17 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.goodpaths.common.MyLngLat;
 import com.goodpaths.common.Report;
+import com.goodpaths.common.ShortestPathResult;
+import com.goodpaths.goodpaths.Utils;
 import com.goodpaths.goodpaths.business.CustomUrlTileProvider;
 import com.goodpaths.goodpaths.business.DangerPointPoster;
 import com.goodpaths.goodpaths.R;
 import com.goodpaths.goodpaths.business.DangerTypeHelper;
 import com.goodpaths.goodpaths.business.LocationProvider;
+import com.goodpaths.goodpaths.business.ShortestPathLoader;
+import com.goodpaths.goodpaths.networking.ServerAccess;
 import com.goodpaths.goodpaths.ui.HomeActivityImageHelper;
 import com.goodpaths.goodpaths.ui.InfoOverlay;
 import com.google.android.gms.common.ConnectionResult;
@@ -47,6 +52,7 @@ import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class HomeActivity extends AppCompatActivity implements OnMapReadyCallback, LocationProvider.OnNewLocationReceivedListener, DangerPointPoster.OnMegaSuccessListener {
 
@@ -117,12 +123,36 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
-    public void onMapReady(GoogleMap map) {
+    public void onMapReady(final GoogleMap map) {
         this.map = map;
         TileProvider tp = new CustomUrlTileProvider(512, 512, this);
         tileOverlay = this.map.addTileOverlay(new TileOverlayOptions().tileProvider(tp).transparency(0.5f).fadeIn(true));
-        Polyline x = map.addPolyline(new PolylineOptions().addAll(getMockPath()));
-        x.setColor(0xff8fabd5);
+        ShortestPathLoader loader = new ShortestPathLoader(this, new ServerAccess.OnResultHandler<ShortestPathResult>() {
+            @Override
+            public void onSuccess(ShortestPathResult response) {
+                Polyline x = map.addPolyline(new PolylineOptions().addAll(toLatLng(response.getNodes())));
+                x.setColor(0xff8fabd5);
+            }
+
+            private List<LatLng> toLatLng(List<MyLngLat> nodes) {
+                List<LatLng> latLngs = new ArrayList<>(nodes.size());
+                for(MyLngLat n: nodes) {
+                    latLngs.add(Utils.toLatLng(n));
+                }
+                return latLngs;
+            }
+
+            @Override
+            public void onError() {
+                Toast.makeText(HomeActivity.this, "Request failed.", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        try {
+            loader.makeRequest(new LatLng(46.521619004, 6.57185196876), new LatLng(46.52414369, 6.56410574));
+        } catch (ServerAccess.ServerAccessException e) {
+            Toast.makeText(HomeActivity.this, "Request failed.", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
