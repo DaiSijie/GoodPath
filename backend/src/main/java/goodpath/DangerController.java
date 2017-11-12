@@ -26,6 +26,8 @@ public class DangerController {
 
     private final Map<Report.Type, HeatMap> heatMaps = new HashMap<>();
 
+    private static final Report.Type DEFAULT_TYPE = Report.Type.ACCESSIBILITY;
+
     @RequestMapping(path = "/addDanger", method = RequestMethod.POST)
     @ResponseBody
     public Report addDanger(@RequestBody Report report) {
@@ -41,12 +43,18 @@ public class DangerController {
             @RequestParam(value = "y") int y,
             @RequestParam(value = "zoom") int zoom) throws IOException {
 
-        BufferedImage bufferedImage = getTile(Report.Type.ACCESSIBILITY, x, y, zoom);
+        BufferedImage bufferedImage = getTile(DEFAULT_TYPE, x, y, zoom);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(bufferedImage, "png", baos);
 
         return baos.toByteArray();
+    }
+
+    @RequestMapping(value = "/populate")
+    public void populate() {
+        HeatMap heatmap = getHeatMap(DEFAULT_TYPE);
+        heatmap.populateRandomly(7.44744, 46.948090);
     }
 
 

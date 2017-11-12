@@ -24,7 +24,7 @@ public class HeatMapImage {
         this.size = size;
     }
 
-    public BufferedImage getImage(List<Report> reports, int x, int y, int zoom) {
+    public BufferedImage getImage(List<LngLat> reports, int x, int y, int zoom) {
         Color[] colors = {Color.RED, new Color(255, 0, 0, 0)};
         BufferedImage toReturn = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
         float[] fractions = {0.2f, 1.0f};
@@ -39,7 +39,7 @@ public class HeatMapImage {
 
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        for (Report report : reports) {
+        for (LngLat report : reports) {
             Point<Float> position = onMap(report, x, y, zoom);
             paint = new RadialGradientPaint(position.x, position.y, radius, fractions, colors);
             g.setPaint(paint);
@@ -51,9 +51,9 @@ public class HeatMapImage {
         return toReturn;
     }
 
-    private Point<Float> onMap(Report report, int x, int y, int z) {
-        double latEvent = report.getLatitude();
-        double lonEvent = report.getLongitude();
+    private Point<Float> onMap(LngLat report, int x, int y, int z) {
+        double latEvent = report.lat;
+        double lonEvent = report.lng;
         LngLat CoordTL = CoordinatesUtils.toWGS84(x, y, z);
         LngLat CoordBR = CoordinatesUtils.toWGS84(x + 1, y + 1, z);
         double longitudeTL = CoordTL.lng;
