@@ -1,5 +1,6 @@
 package goodpath;
 
+import com.goodpaths.common.MyLngLat;
 import com.goodpaths.common.Report;
 import com.goodpaths.common.ShortestPathQuery;
 import com.goodpaths.common.ShortestPathResult;
@@ -18,6 +19,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -82,6 +84,19 @@ public class DangerController {
     }
 
 
+    @RequestMapping(value = "/populate")
+    public void populateHarassmentDemo() {
+        HeatMap heatmap = getHeatMap(Report.Type.HARASSMENT);
+        heatmap.populateRandomlyDemo(6.63050615, 46.52187886, graphs.get(Report.Type.HARASSMENT));
+        heatmap.populateSmartly(6.610663533210754, 46.52260231864355, graphs.get(Report.Type.HARASSMENT));
+        heatmap.populateSmartly(6.624442040920258, 46.52124841127639, graphs.get(Report.Type.HARASSMENT));
+    }
+
+    @RequestMapping(value = "/test")
+    public List<MyLngLat> test() {
+        return graphs.get(Report.Type.HARASSMENT).shortestPath(new MyLngLat(6.57185196876, 46.521619004), new MyLngLat(6.56410574, 46.52414369));
+    }
+
     @PostConstruct
     public void init() {
         graphs = new HashMap<>();
@@ -114,3 +129,5 @@ public class DangerController {
     }
 
 }
+
+
