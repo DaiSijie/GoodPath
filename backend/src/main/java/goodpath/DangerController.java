@@ -15,18 +15,18 @@ import org.springframework.web.filter.CommonsRequestLoggingFilter;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
-import java.util.ArrayList;
-import goodpath.utils.LngLat;
 
 import goodpath.openstreetmap.Graph;
 import goodpath.openstreetmap.MyXmlHandler;
-import goodpath.utils.LngLat;
+import com.goodpaths.common.MyLngLat;
+import com.goodpaths.common.ShortestPathQuery;
 
 @RestController
 public class DangerController {
@@ -60,17 +60,8 @@ public class DangerController {
     }
     @RequestMapping(value = "/pathRequest")
     @ResponseBody()
-    public ArrayList<LngLat> pathRequest(
-            @RequestParam(value = "longDepart") double longDepart,
-            @RequestParam(value = "latDepart") double latDepart,
-            @RequestParam(value = "longEnd") double longEnd,
-            @RequestParam(value = "latEnd") double latEnd){
-        LngLat from = new LngLat(longDepart, latDepart);
-        LngLat to = new LngLat(longEnd, latEnd);
-        List<LngLat> path;
-        path = graph.shortestPath(from, to);
-
-        return (ArrayList<LngLat>) path;
+    public List<MyLngLat> pathRequest(@RequestBody ShortestPathQuery query) {
+        return graph.shortestPath(query.getStart(), query.getEnd());
     }
 
 
@@ -93,8 +84,8 @@ public class DangerController {
     }
 
     @RequestMapping(value = "/test")
-    public List<LngLat> test() {
-        return graph.shortestPath(new LngLat(6.6623399, 46.5597872), new LngLat(6.6596945, 46.5560183));
+    public List<MyLngLat> test() {
+        return graph.shortestPath(new MyLngLat(6.57185196876, 46.521619004), new MyLngLat(6.56410574, 46.52414369));
     }
 
     @PostConstruct

@@ -1,10 +1,12 @@
 package goodpath.utils;
 
+import com.goodpaths.common.MyLngLat;
+
 public class CoordinatesUtils {
     private CoordinatesUtils() {
     }
 
-    public static LngLat toWGS84(int x, int y, int zoom) {
+    public static MyLngLat toWGS84(int x, int y, int zoom) {
 /*
         double s = java.lang.Math.pow(2, zoom);
         double longitude = 360 * x / s - 180;
@@ -17,7 +19,7 @@ public class CoordinatesUtils {
         float X = (float)((x / Math.pow(2.0, zoom) * 360.0) - 180.0);
         float Y = (float)(180.0 / Math.PI * Math.atan(Math.sinh(n)));
 
-        return new LngLat(X, Y);
+        return new MyLngLat(X, Y);
     }
 
     public static Point<Integer> toCoord(double longitude, double latitude, int zoom) {
@@ -27,7 +29,7 @@ public class CoordinatesUtils {
 
         return new Point<>(xtile, ytile);
     }
-    public static double distanceOf(LngLat a, LngLat b) {
+    public static double distanceOf(MyLngLat a, MyLngLat b) {
         int R = 6378137;
         return 2
                 * R

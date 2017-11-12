@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import goodpath.utils.CoordinatesUtils;
-import goodpath.utils.LngLat;
+import com.goodpaths.common.MyLngLat;
 
 public class HeatMap {
-    private final List<LngLat> reports;
+    private final List<MyLngLat> reports;
     private final Report.Type problemType;
     private final Color color;
 
@@ -33,15 +33,15 @@ public class HeatMap {
     }
 
     public void addReport(Report report) {
-        reports.add(new LngLat(report.getLongitude(), report.getLatitude()));
+        reports.add(new MyLngLat(report.getLongitude(), report.getLatitude()));
     }
 
     public BufferedImage getImage(int x, int y, int zoom, int imageSize) {
-        List<LngLat> selected = selectReports(x, y, zoom);
+        List<MyLngLat> selected = selectReports(x, y, zoom);
         return new HeatMapImage(imageSize).getImage(selected, x, y, zoom, this.color);
     }
 
-    private ArrayList<LngLat> selectReports(int x, int y, int zoom) {
+    private ArrayList<MyLngLat> selectReports(int x, int y, int zoom) {
         int x_TL = x;
         int x_BR = x + 2;
         int y_TL = y;
@@ -55,12 +55,12 @@ public class HeatMap {
             --y_TL;
         }
 
-        LngLat locationTL = CoordinatesUtils.toWGS84(x_TL, y_TL, zoom);
-        LngLat locationBR = CoordinatesUtils.toWGS84(x_BR, y_BR, zoom);
+        MyLngLat locationTL = CoordinatesUtils.toWGS84(x_TL, y_TL, zoom);
+        MyLngLat locationBR = CoordinatesUtils.toWGS84(x_BR, y_BR, zoom);
 
-        ArrayList<LngLat> selected = new ArrayList<>();
+        ArrayList<MyLngLat> selected = new ArrayList<>();
 
-        for (LngLat lnglat : this.reports) {
+        for (MyLngLat lnglat : this.reports) {
             if (isInside(lnglat, locationTL.lng, locationTL.lat, locationBR.lng, locationBR.lat)) {
                 selected.add(lnglat);
             }
@@ -68,7 +68,7 @@ public class HeatMap {
         return selected;
     }
 
-    private boolean isInside(LngLat report, double longitudeTL, double latitudeTL, double longitudeBR, double latitudeBR) {
+    private boolean isInside(MyLngLat report, double longitudeTL, double latitudeTL, double longitudeBR, double latitudeBR) {
         double newLongitude = report.lng;
 
         if (longitudeBR >= 360 && newLongitude < longitudeTL) {
@@ -83,12 +83,12 @@ public class HeatMap {
         final double delta = 0.1;
         final double prob = 0.9;
         final double deltaFactor = 1000;
-        LngLat coord = null;
+        MyLngLat coord = null;
         for(int i = 0; i < 10000; i++) {
             if (Math.random() < prob && coord != null) {
-                coord = new LngLat(randomDouble(coord.lng, delta/deltaFactor), randomDouble(coord.lat, delta/deltaFactor));
+                coord = new MyLngLat(randomDouble(coord.lng, delta/deltaFactor), randomDouble(coord.lat, delta/deltaFactor));
             } else {
-                coord = new LngLat(randomDouble(lng, delta), randomDouble(lat, delta));
+                coord = new MyLngLat(randomDouble(lng, delta), randomDouble(lat, delta));
             }
             reports.add(coord);
         }
@@ -96,9 +96,9 @@ public class HeatMap {
 
     public void populateSmartly(double lng, double lat) {
         final double delta = 0.0003;
-        LngLat coord = null;
+        MyLngLat coord = null;
         for(int i = 0; i < 20; i++) {
-            coord = new LngLat(randomDouble(lng, delta), randomDouble(lat, delta));
+            coord = new MyLngLat(randomDouble(lng, delta), randomDouble(lat, delta));
             reports.add(coord);
         }
     }

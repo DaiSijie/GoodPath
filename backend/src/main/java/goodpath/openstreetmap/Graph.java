@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import goodpath.utils.CoordinatesUtils;
-import goodpath.utils.LngLat;
+import com.goodpaths.common.MyLngLat;
 
 public class Graph {
     private final Map<Long, OSMNode> nodes;
@@ -38,7 +38,7 @@ public class Graph {
         edges.get(node2.getId()).add(edge);
     }
 
-    private static double computeDistance(LngLat coord1, LngLat coord2) {
+    private static double computeDistance(MyLngLat coord1, MyLngLat coord2) {
         return CoordinatesUtils.distanceOf(coord1, coord2);
     }
 
@@ -58,7 +58,7 @@ public class Graph {
         return nodes.get(node);
     }
 
-    private OSMNode nearestNode(LngLat coord) {
+    private OSMNode nearestNode(MyLngLat coord) {
         double minDist = Double.POSITIVE_INFINITY;
         OSMNode min = null;
         for(OSMNode node: nodes.values()) {
@@ -71,13 +71,13 @@ public class Graph {
         return min;
     }
 
-    public List<LngLat> shortestPath(LngLat from, LngLat to) {
+    public List<MyLngLat> shortestPath(MyLngLat from, MyLngLat to) {
         OSMNode fromNode = nearestNode(from);
         OSMNode toNode = nearestNode(to);
 
         List<OSMNode> nodes = shortestPath(fromNode, toNode);
 
-        List<LngLat> coords = new ArrayList<>(nodes.size());
+        List<MyLngLat> coords = new ArrayList<>(nodes.size());
         for(OSMNode node: nodes) {
             coords.add(node.getCoord());
         }
