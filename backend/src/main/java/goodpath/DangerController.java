@@ -38,7 +38,6 @@ public class DangerController {
     @ResponseBody
     public Report addDanger(@RequestBody Report report) {
         getHeatMap(report.getProblemtype()).addReport(report);
-
         return report;
     }
 
@@ -47,9 +46,10 @@ public class DangerController {
     public byte[] tileRequest(
             @RequestParam(value = "x") int x,
             @RequestParam(value = "y") int y,
-            @RequestParam(value = "zoom") int zoom) throws IOException {
+            @RequestParam(value = "zoom") int zoom,
+            @RequestParam(value = "problemtype") Report.Type problemType) throws IOException {
 
-        BufferedImage bufferedImage = getTile(DEFAULT_TYPE, x, y, zoom);
+        BufferedImage bufferedImage = getTile(problemType, x, y, zoom);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(bufferedImage, "png", baos);
@@ -90,7 +90,7 @@ public class DangerController {
 
     private HeatMap getHeatMap(Report.Type problemType) {
         if (!heatMaps.containsKey(problemType)) {
-            heatMaps.put(problemType, new HeatMap());
+            heatMaps.put(problemType, new HeatMap(problemType));
         }
 
         return heatMaps.get(problemType);
