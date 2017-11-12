@@ -1,4 +1,4 @@
-package com.goodpaths.goodpaths;
+package com.goodpaths.goodpaths.ui.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -7,8 +7,11 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.RadioGroup;
 
-import static com.goodpaths.goodpaths.DangerTypeHelper.ACCESSIBILITY;
-import static com.goodpaths.goodpaths.DangerTypeHelper.HARASSMENT;
+import com.goodpaths.goodpaths.business.DangerTypeHelper;
+import com.goodpaths.goodpaths.R;
+
+import static com.goodpaths.goodpaths.business.DangerTypeHelper.ACCESSIBILITY;
+import static com.goodpaths.goodpaths.business.DangerTypeHelper.HARASSMENT;
 
 public class SettingsActivity extends AppCompatActivity {
 

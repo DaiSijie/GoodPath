@@ -1,4 +1,4 @@
-package com.goodpaths.goodpaths;
+package com.goodpaths.goodpaths.business;
 
 import com.goodpaths.goodpaths.networking.ServerAccess;
 import com.google.android.gms.maps.model.UrlTileProvider;

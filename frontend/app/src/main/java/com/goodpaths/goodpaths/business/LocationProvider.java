@@ -1,4 +1,4 @@
-package com.goodpaths.goodpaths;
+package com.goodpaths.goodpaths.business;
 
 
 import android.content.Context;

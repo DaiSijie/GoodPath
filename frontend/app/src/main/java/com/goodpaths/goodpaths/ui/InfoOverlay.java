@@ -1,4 +1,4 @@
-package com.goodpaths.goodpaths;
+package com.goodpaths.goodpaths.ui;
 
 import android.content.Context;
 import android.content.DialogInterface;
