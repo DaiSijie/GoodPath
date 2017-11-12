@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+import goodpath.openstreetmap.Graph;
 import goodpath.utils.CoordinatesUtils;
 import com.goodpaths.common.MyLngLat;
 
@@ -32,7 +33,8 @@ public class HeatMap {
         }
     }
 
-    public void addReport(Report report) {
+    public void addReport(Report report, Graph graph) {
+        graph.addWeight(new MyLngLat(report.getLongitude(),report.getLatitude()));
         reports.add(new MyLngLat(report.getLongitude(), report.getLatitude()));
     }
 
@@ -79,10 +81,10 @@ public class HeatMap {
                 longitudeTL <= newLongitude && newLongitude <= longitudeBR);
     }
 
-    public void populateRandomly(double lng, double lat) {
-        final double delta = 0.1;
+    public void populateRandomly(double lng, double lat, Graph graph) {
+        final double delta = 0.01;
         final double prob = 0.9;
-        final double deltaFactor = 1000;
+        final double deltaFactor = 500;
         MyLngLat coord = null;
         for(int i = 0; i < 10000; i++) {
             if (Math.random() < prob && coord != null) {
@@ -90,15 +92,17 @@ public class HeatMap {
             } else {
                 coord = new MyLngLat(randomDouble(lng, delta), randomDouble(lat, delta));
             }
+            graph.addWeight(coord);
             reports.add(coord);
         }
     }
 
-    public void populateSmartly(double lng, double lat) {
+    public void populateSmartly(double lng, double lat, Graph graph) {
         final double delta = 0.0003;
         MyLngLat coord = null;
         for(int i = 0; i < 20; i++) {
             coord = new MyLngLat(randomDouble(lng, delta), randomDouble(lat, delta));
+            graph.addWeight(coord);
             reports.add(coord);
         }
     }

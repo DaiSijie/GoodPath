@@ -95,4 +95,14 @@ public class Graph {
     public String toString() {
         return edges.size() + " " + nodes.size();
     }
+
+    public void addWeight(MyLngLat myLngLat){
+        for(OSMNode node: nodes.values()){
+            if(CoordinatesUtils.distanceOf(myLngLat,node.getCoord()) < 20){
+                for(Edge e: edges.get(node.getId())){
+                    e.addWeight();
+                }
+            }
+        }
+    }
 }

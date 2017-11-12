@@ -45,7 +45,7 @@ public class ShortestPath {
             for(Edge e: graph.getEdges(u)) {
                 long vId = e.getOtherNode(u);
                 Value v = valueMap.get(vId);
-                double alt = getDist(u) + e.getDistance();
+                double alt = getDist(u) + e.getTotalWeight();
                 if (v == null) {
                     v = new Value(vId, u, alt);
                     valueMap.put(vId, v);

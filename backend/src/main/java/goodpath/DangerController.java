@@ -39,7 +39,7 @@ public class DangerController {
     @RequestMapping(path = "/addDanger", method = RequestMethod.POST)
     @ResponseBody
     public Report addDanger(@RequestBody Report report) {
-        getHeatMap(report.getProblemtype()).addReport(report);
+        getHeatMap(report.getProblemtype()).addReport(report, graph);
         return report;
     }
 
@@ -68,19 +68,19 @@ public class DangerController {
     @RequestMapping(value = "/populateAccessibility")
     public void populateAccessibility() {
         HeatMap heatmap = getHeatMap(Report.Type.ACCESSIBILITY);
-        heatmap.populateRandomly(7.44744, 46.948090);
+        heatmap.populateRandomly(6.63050615, 46.52187886, graph);
     }
 
     @RequestMapping(value = "/populateHarassment")
     public void populateHarassment() {
         HeatMap heatmap = getHeatMap(Report.Type.HARASSMENT);
-        heatmap.populateRandomly(7.44744, 46.948090);
+        heatmap.populateRandomly(6.63050615, 46.52187886, graph);
     }
     @RequestMapping(path = "/smartPopulate", method = RequestMethod.POST)
     @ResponseBody
     public void populate(@RequestBody Report report) {
         HeatMap heatmap = getHeatMap(report.getProblemtype());
-        heatmap.populateSmartly(report.getLongitude(), report.getLatitude());
+        heatmap.populateSmartly(report.getLongitude(), report.getLatitude(), graph);
     }
 
     @RequestMapping(value = "/test")
