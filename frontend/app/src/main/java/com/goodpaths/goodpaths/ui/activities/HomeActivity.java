@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.provider.SyncStateContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -26,6 +27,7 @@ import com.goodpaths.goodpaths.business.DangerPointPoster;
 import com.goodpaths.goodpaths.R;
 import com.goodpaths.goodpaths.business.DangerTypeHelper;
 import com.goodpaths.goodpaths.business.LocationProvider;
+import com.goodpaths.goodpaths.networking.GeoCodingAccess;
 import com.goodpaths.goodpaths.ui.HomeActivityImageHelper;
 import com.goodpaths.goodpaths.ui.InfoOverlay;
 import com.google.android.gms.common.ConnectionResult;
@@ -123,6 +125,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         tileOverlay = this.map.addTileOverlay(new TileOverlayOptions().tileProvider(tp).transparency(0.5f).fadeIn(true));
         Polyline x = map.addPolyline(new PolylineOptions().addAll(getMockPath()));
         x.setColor(0xff8fabd5);
+        //GeoCodingAccess geo = new GeoCodingAccess(this);
     }
 
     @Override
@@ -238,6 +241,8 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        //AIzaSyCJkxiVOGoOx5tFtiXjk54EEEHjLTsd5OU
+
         goFAB.setEnabled(false);
         goFAB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -250,7 +255,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
         goButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                
+
             }
         });
     }
