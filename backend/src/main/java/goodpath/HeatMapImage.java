@@ -45,12 +45,8 @@ public class HeatMapImage {
         return (float)(size_in_meters/(156543.03392 * Math.cos(a.lat * Math.PI / 180) / Math.pow(2, zoom)));
     }
     public BufferedImage getImage(List<LngLat> reports, int x, int y, int zoom) {
-        Color[] colors = {new Color(255, 0, 0, 100), new Color(255, 0, 0, 0)};
         BufferedImage toReturn = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
-        float[] fractions = {0.7f, 1.0f};
         float radius = computeRadius(x,y,zoom);
-        System.out.println(radius);
-        Paint paint;
 
 
         Graphics2D g = toReturn.createGraphics();
@@ -67,10 +63,7 @@ public class HeatMapImage {
 
         for (LngLat report : reports) {
             Point<Float> position = onMap(report, x, y, zoom);
-            //paint = new RadialGradientPaint(position.x, position.y, radius, fractions, colors);
-            //g.setPaint(paint);
             g.fill(new Ellipse2D.Double(position.x - radius, position.y - radius, radius * 2, radius * 2));
-            System.out.println(position.x + " " + position.y);
         }
 
         g.dispose();

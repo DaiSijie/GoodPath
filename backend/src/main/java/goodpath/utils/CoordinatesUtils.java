@@ -1,7 +1,5 @@
 package goodpath.utils;
 
-import java.util.ArrayList;
-
 public class CoordinatesUtils {
     private CoordinatesUtils() {
     }
