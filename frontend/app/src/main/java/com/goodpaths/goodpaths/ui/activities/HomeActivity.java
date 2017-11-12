@@ -1,5 +1,7 @@
 package com.goodpaths.goodpaths.ui.activities;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -15,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -32,6 +35,7 @@ import com.goodpaths.goodpaths.business.DangerTypeHelper;
 import com.goodpaths.goodpaths.business.LocationProvider;
 
 import com.goodpaths.goodpaths.business.ShortestPathLoader;
+import com.goodpaths.goodpaths.networking.GeoCodingAccess;
 import com.goodpaths.goodpaths.networking.ServerAccess;
 import com.goodpaths.goodpaths.ui.HomeActivityImageHelper;
 import com.goodpaths.goodpaths.ui.InfoOverlay;
@@ -72,6 +76,8 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private boolean alreadyMoved = false;
     private Marker currentPins;
+    private Polyline lastAddedPath;
+    private Marker lastDestination;
 
     // endregion
 
@@ -86,6 +92,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     private EditText destinationText;
     private Button goButton;
     private LinearLayout goBaseLayout;
+    private ProgressDialog progress;
 
     // endregion
 
@@ -112,6 +119,12 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
+    protected void onResume(){
+        super.onResume();
+        refresh();
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == LOCATION_PERMISSION_REQUEST) {
             boolean enabled = grantResults.length > 0
@@ -133,32 +146,7 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //GeoCodingAccess geo = new GeoCodingAccess(this);
 
-        ShortestPathLoader loader = new ShortestPathLoader(this, new ServerAccess.OnResultHandler<ShortestPathResult>() {
-            @Override
-            public void onSuccess(ShortestPathResult response) {
-                Polyline x = map.addPolyline(new PolylineOptions().addAll(toLatLng(response.getNodes())));
-                x.setColor(0xff8fabd5);
-            }
 
-            private List<LatLng> toLatLng(List<MyLngLat> nodes) {
-                List<LatLng> latLngs = new ArrayList<>(nodes.size());
-                for(MyLngLat n: nodes) {
-                    latLngs.add(Utils.toLatLng(n));
-                }
-                return latLngs;
-            }
-
-            @Override
-            public void onError() {
-                Toast.makeText(HomeActivity.this, "Request failed.", Toast.LENGTH_LONG).show();
-            }
-        });
-
-        try {
-            loader.makeRequest(new LatLng(46.521619004, 6.57185196876), new LatLng(46.52414369, 6.56410574));
-        } catch (ServerAccess.ServerAccessException e) {
-            Toast.makeText(HomeActivity.this, "Request failed.", Toast.LENGTH_LONG).show();
-        }
     }
 
     @Override
@@ -182,14 +170,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     // region helpers
-
-    private ArrayList<LatLng> getMockPath(){
-        ArrayList<LatLng> toReturn = new ArrayList<>();
-        toReturn.add(new LatLng(46.5196535,6.632273400000031));
-        toReturn.add(new LatLng(46.51998896696903,6.625528335571289));
-        toReturn.add(new LatLng(46.52246943970911, 6.61402702331543));
-        return toReturn;
-    }
 
     private void refresh(){
         if(tileOverlay != null){
@@ -274,8 +254,6 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        //AIzaSyCJkxiVOGoOx5tFtiXjk54EEEHjLTsd5OU
-
         goFAB.setEnabled(false);
         goFAB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -289,8 +267,122 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View view) {
 
+                String destination = destinationText.getText().toString();
+                if(lastAddedPath != null) {
+                    lastAddedPath.remove();
+                }
+                if(lastDestination != null) {
+                    lastDestination.remove();
+                }
+                goBaseLayout.setVisibility(View.GONE);
+                destinationText.setText("");
+
+                //hide keyboard
+                View focused = HomeActivity.this.getCurrentFocus();
+                if (view != null) {
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                }
+
+                //start the long way to downloading a path...
+                showLoadingDialog();
+                requestLocation(destination);
+
             }
         });
+
+        progress = new ProgressDialog(this);
+        progress.setTitle("Looking for the best path...");
+        progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
+    }
+
+    private void requestLocation(String destination){
+        GeoCodingAccess.getLongLat(HomeActivity.this, destination, new GeoCodingAccess.OnCoolResultListener() {
+
+            @Override
+            public void onCoolResultReceived(LatLng destLocation) {
+                if(destLocation == null){
+                    showError("Destination unknown");
+                    return;
+                }
+
+                // if destination outside Lausanne...
+
+                LatLng startLocation = LocationProvider.getInstanceOf(HomeActivity.this).getLocation();
+
+                if(startLocation == null) {
+                    showError("Start unknown");
+                    return;
+                }
+
+                lastDestination = map.addMarker(new MarkerOptions().position(destLocation).title("Destination"));
+                requestPath(startLocation, destLocation);
+            }
+        });
+    }
+
+    /*
+     * CALLS ...
+     */
+
+    private void requestPath(LatLng start, LatLng end){
+        ShortestPathLoader loader = new ShortestPathLoader(HomeActivity.this, new ServerAccess.OnResultHandler<ShortestPathResult>() {
+
+            @Override
+            public void onSuccess(ShortestPathResult response) {
+                displayPath(toLatLng(response.getNodes()));
+            }
+
+            private List<LatLng> toLatLng(List<MyLngLat> nodes) {
+                List<LatLng> latLngs = new ArrayList<>(nodes.size());
+                for(MyLngLat n: nodes) {
+                    latLngs.add(Utils.toLatLng(n));
+                }
+                return latLngs;
+            }
+
+            @Override
+            public void onError() {
+                showError("Best path request failed");
+            }
+        });
+
+        try {
+            loader.makeRequest(start, end);
+        } catch (ServerAccess.ServerAccessException e) {
+            showError("Couldn't place request for best path");
+        }
+    }
+
+    /*
+     * CALLS ...
+     */
+
+    private void displayPath(List<LatLng> path) {
+        if(path.isEmpty()){
+            showError("Path was empty");
+            return;
+        }
+        hideLoadingDialog();
+        lastAddedPath = map.addPolyline(new PolylineOptions().addAll(path));
+        lastAddedPath.setColor(0xff8fabd5);
+    }
+
+    /*
+     * FALLBACK :-(
+     */
+
+    private void showError(String error){
+        hideLoadingDialog();
+        Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+    }
+
+    private void showLoadingDialog(){
+        progress.show();
+    }
+
+    private void hideLoadingDialog(){
+        progress.dismiss();
     }
 
     // endregion
