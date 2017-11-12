@@ -97,6 +97,22 @@ public class HeatMap {
         }
     }
 
+    public void populateRandomlyDemo(double lng, double lat, Graph graph) {
+        final double delta = 0.01;
+        final double prob = 0.7;
+        final double deltaFactor = 500;
+        MyLngLat coord = null;
+        for(int i = 0; i < 100; i++) {
+            if (Math.random() < prob && coord != null) {
+                coord = new MyLngLat(randomDouble(coord.lng, delta/deltaFactor), randomDouble(coord.lat, delta/deltaFactor));
+            } else {
+                coord = new MyLngLat(randomDouble(lng, delta), randomDouble(lat, delta));
+            }
+            graph.addWeight(coord);
+            reports.add(coord);
+        }
+    }
+
     public void populateSmartly(double lng, double lat, Graph graph) {
         final double delta = 0.0003;
         MyLngLat coord = null;

@@ -88,6 +88,19 @@ public class DangerController {
         return graph.shortestPath(new MyLngLat(6.57185196876, 46.521619004), new MyLngLat(6.56410574, 46.52414369));
     }
 
+    @RequestMapping(value = "/populate")
+    public void populateHarassmentDemo() {
+        HeatMap heatmap = getHeatMap(Report.Type.HARASSMENT);
+        heatmap.populateRandomlyDemo(6.63050615, 46.52187886, graphs.get(Report.Type.HARASSMENT));
+        heatmap.populateSmartly(6.610663533210754, 46.52260231864355, graphs.get(Report.Type.HARASSMENT));
+        heatmap.populateSmartly(6.624442040920258, 46.52124841127639, graphs.get(Report.Type.HARASSMENT));
+    }
+
+    @RequestMapping(value = "/test")
+    public List<MyLngLat> test() {
+        return graphs.get(Report.Type.HARASSMENT).shortestPath(new MyLngLat(6.57185196876, 46.521619004), new MyLngLat(6.56410574, 46.52414369));
+    }
+
     @PostConstruct
     public void init() {
         graph = MyXmlHandler.parse();
@@ -118,3 +131,5 @@ public class DangerController {
     }
 
 }
+
+
