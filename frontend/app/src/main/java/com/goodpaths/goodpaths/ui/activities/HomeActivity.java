@@ -2,9 +2,6 @@ package com.goodpaths.goodpaths.ui.activities;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -20,6 +17,8 @@ import com.goodpaths.common.Report;
 import com.goodpaths.goodpaths.business.CustomUrlTileProvider;
 import com.goodpaths.goodpaths.business.DangerPointPoster;
 import com.goodpaths.goodpaths.R;
+import com.goodpaths.goodpaths.business.LocationProvider;
+import com.goodpaths.goodpaths.ui.HomeActivityImageHelper;
 import com.goodpaths.goodpaths.ui.InfoOverlay;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -29,74 +28,112 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 
-public class HomeActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class HomeActivity extends AppCompatActivity implements OnMapReadyCallback, LocationProvider.OnNewLocationReceivedListener, DangerPointPoster.OnMegaSuccessListener {
 
-    private GoogleMap mMap;
-
-    private DangerPointPoster dangerPointPoster;
-    private FloatingActionButton button;
+    // region business
 
     private static int LOCATION_PERMISSION_REQUEST = 1;
+
+    private GoogleMap map;
+    private DangerPointPoster dangerPointPoster;
+    private TileOverlay tileOverlay;
+
+    // endregion
+
+    // region state
+
+    private boolean alreadyMoved = false;
+    private Marker currentPins;
+
+    // endregion
+
+    // region views
+
+    private ImageButton settingsButton;
+    private ImageButton helpButton;
+    private FloatingActionButton localizeMeButton;
+    private FloatingActionButton recenterButton;
+
+    // endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-        dangerPointPoster = new DangerPointPoster(this);
-
         setContentView(R.layout.activity_home);
+        findViews();
+        initViews();
 
-
-        Toolbar myToolbar = findViewById(R.id.my_toolbar);
-        setSupportActionBar(myToolbar);
-
-
-        ImageButton settings = findViewById(R.id.settings);
-        settings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(HomeActivity.this, SettingsActivity.class);
-                startActivity(i);
-            }
-        });
-
-        ImageButton help = findViewById(R.id.help);
-        help.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                InfoOverlay.displayOverlay(HomeActivity.this);
-            }
-        });
-
-
+        LocationProvider.getInstanceOf(this).setOnNewLocationReceivedListener(this);
+        dangerPointPoster = new DangerPointPoster(this);
+        dangerPointPoster.setOnMegaSuccessListener(this);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        dangerPointPoster = new DangerPointPoster(this);
-
-
-        button = findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dangerPointPoster.postCurrentPosition(Report.Type.ACCESSIBILITY);
-            }
-        });
-        button.setEnabled(false);
         checkLocationPermission();
+
         if (GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this) != ConnectionResult.SUCCESS) {
             Toast.makeText(this, "Services not available.", Toast.LENGTH_LONG).show();
         }
+    }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == LOCATION_PERMISSION_REQUEST) {
+            boolean enabled = grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED;
+            localizeMeButton.setEnabled(enabled);
+            recenterButton.setEnabled(enabled);
+            return;
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onMapReady(GoogleMap map) {
+        this.map = map;
+        TileProvider tp = new CustomUrlTileProvider(512, 512);
+        tileOverlay = this.map.addTileOverlay(new TileOverlayOptions().tileProvider(tp).transparency(0.5f).fadeIn(true));
+    }
+
+    @Override
+    public void onNewLocationReceived(LatLng location) {
+        if(currentPins != null){
+            currentPins.remove();
+        }
+
+        BitmapDescriptor toShow = BitmapDescriptorFactory.fromBitmap(HomeActivityImageHelper.getPins());
+        currentPins = map.addMarker(new MarkerOptions().position(location).title("Me").icon(toShow));
+
+        if(!alreadyMoved){
+            alreadyMoved = true;
+            centerOn(location);
+        }
+    }
+
+    @Override
+    public void onSuccess() {
+        refresh();
+    }
+
+    // region helpers
+
+    private void refresh(){
+        if(tileOverlay != null){
+            tileOverlay.clearTileCache();
+        }
+    }
+
+    private void centerOn(LatLng location){
+        map.moveCamera(CameraUpdateFactory.newLatLng(location));
+        map.moveCamera(CameraUpdateFactory.zoomTo(16f));
     }
 
     private void checkLocationPermission() {
@@ -106,58 +143,51 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     LOCATION_PERMISSION_REQUEST);
         } else {
-            button.setEnabled(true);
+            localizeMeButton.setEnabled(true);
+            recenterButton.setEnabled(true);
         }
     }
 
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == LOCATION_PERMISSION_REQUEST) {
-            button.setEnabled(grantResults.length > 0
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED);
-            return;
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    private void findViews(){
+        setSupportActionBar((Toolbar) findViewById(R.id.homeToolbar));
+        settingsButton = findViewById(R.id.settings);
+        helpButton = findViewById(R.id.help);
+        localizeMeButton = findViewById(R.id.button);
+        recenterButton = findViewById(R.id.recenterButton);
     }
 
+    private void initViews(){
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(HomeActivity.this, SettingsActivity.class));
+            }
+        });
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
+        helpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                InfoOverlay.displayOverlay(HomeActivity.this);
+            }
+        });
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+        localizeMeButton.setEnabled(false);
+        localizeMeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dangerPointPoster.postCurrentPosition(Report.Type.ACCESSIBILITY);
+            }
+        });
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-
-
-        LatLng NEWARK = new LatLng(40.714086, -74.228697);
-
-        Bitmap b = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
-        Canvas c = new Canvas(b);
-        Paint p = new Paint();
-        p.setARGB(100, 0, 256, 0);
-        c.drawRect(0, 0, 100, 100, p);
-
-        BitmapDescriptor x = BitmapDescriptorFactory.fromBitmap(b);
-
-        GroundOverlayOptions newarkMap = new GroundOverlayOptions()
-                .image(x)
-                .position(NEWARK, 8600f, 6500f);
-        mMap.addGroundOverlay(newarkMap);
-        TileProvider tp = new CustomUrlTileProvider(512, 512);
-        mMap.addTileOverlay(new TileOverlayOptions().tileProvider(tp));
-
+        recenterButton.setEnabled(false);
+        recenterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                centerOn(LocationProvider.getInstanceOf(HomeActivity.this).getLocation());
+            }
+        });
     }
+
+    // endregion
+
 }

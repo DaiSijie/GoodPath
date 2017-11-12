@@ -26,13 +26,24 @@ public class LocationProvider {
     private final Context context;
     private LocationRequest locationRequest;
     private LatLng latLng;
+    private OnNewLocationReceivedListener listener;
 
-    public LocationProvider(Context context) {
+    private static LocationProvider instance;
+
+
+    public static LocationProvider getInstanceOf(Context context){
+        if(instance == null){
+            instance = new LocationProvider(context);
+        }
+        return instance;
+    }
+
+    private LocationProvider(Context context) {
         this.context = context;
         startLocationUpdates();
     }
 
-    public void startLocationUpdates() {
+    private void startLocationUpdates() {
         // Create the location request to start receiving updates
         locationRequest = new LocationRequest();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -61,8 +72,15 @@ public class LocationProvider {
         getLastLocation();
     }
 
-    public void onLocationChanged(Location location) {
+    private void onLocationChanged(Location location) {
         latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        if(listener != null){
+            listener.onNewLocationReceived(latLng);
+        }
+    }
+
+    public void setOnNewLocationReceivedListener(OnNewLocationReceivedListener listener){
+        this.listener = listener;
     }
 
 
@@ -91,5 +109,9 @@ public class LocationProvider {
 
     public LatLng getLocation() {
         return latLng;
+    }
+
+    public interface OnNewLocationReceivedListener {
+        void onNewLocationReceived(LatLng location);
     }
 }

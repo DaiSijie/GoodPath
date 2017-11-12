@@ -10,6 +10,9 @@ import com.goodpaths.goodpaths.networking.ServerAccess;
 import com.google.android.gms.maps.model.LatLng;
 
 public class DangerPointPoster {
+
+    private OnMegaSuccessListener listener;
+
     private static final String URL = ServerAccess.BASE_URL + "/addDanger";
 
     private final Context context;
@@ -19,8 +22,7 @@ public class DangerPointPoster {
 
     public DangerPointPoster(Context context) {
         this.context = context;
-        this.locationProvider = new LocationProvider(context);
-        locationProvider.startLocationUpdates();
+        this.locationProvider = LocationProvider.getInstanceOf(context);
         serverAccess = createServerAccess();
     }
 
@@ -49,6 +51,9 @@ public class DangerPointPoster {
     private class PostReportResultHandler implements ServerAccess.OnResultHandler<Report> {
         @Override
         public void onSuccess(Report response) {
+            if(listener != null){
+                listener.onSuccess();
+            }
             Toast.makeText(context, "Danger successfully reported.", Toast.LENGTH_LONG).show();
         }
 
@@ -56,6 +61,17 @@ public class DangerPointPoster {
         public void onError() {
             Toast.makeText(context, "Failed to report danger.", Toast.LENGTH_LONG).show();
         }
+    }
+
+    public void setOnMegaSuccessListener(OnMegaSuccessListener listener){
+        this.listener = listener;
+    }
+
+
+    public interface OnMegaSuccessListener {
+
+        void onSuccess();
+
     }
 
 

@@ -19,7 +19,7 @@ import java.io.IOException;
 
 public class ServerAccess<Req, Resp> {
 
-    public static final String BASE_URL = "http://128.179.152.162:8080";
+    public static final String BASE_URL = "http://128.179.153.24:8080";
 
     public interface OnResultHandler<Resp> {
         void onSuccess(Resp response);

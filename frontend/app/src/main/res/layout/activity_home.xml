@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/my_toolbar"
+        android:id="@+id/homeToolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="#e8a9b0"
@@ -70,12 +70,36 @@
         android:layout_height="match_parent"
         tools:context="com.goodpaths.goodpaths.ui.activities.HomeActivity" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/button"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
         android:layout_gravity="bottom|end"
-        android:src="@drawable/ic_pin_drop_white_24dp" />
+        android:orientation="vertical">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="0dp"
+            android:backgroundTint="#e8a9b0"
+            app:borderWidth="0dp"
+            android:src="@drawable/ic_add_location" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/recenterButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:backgroundTint="#e8a9b0"
+            app:borderWidth="0dp"
+            android:src="@drawable/ic_my_location" />
+
+    </LinearLayout>
+
+
+
 </FrameLayout>
 
