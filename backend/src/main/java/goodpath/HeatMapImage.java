@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.RenderingHints;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
@@ -24,28 +25,15 @@ public class HeatMapImage {
     private double haversin(double x) {
         return java.lang.Math.pow(java.lang.Math.sin(x / 2), 2);
     }
-/*
-    private float computeRadius(int x, int y, int zoom){
-        LngLat a = CoordinatesUtils.toWGS84(x, y, zoom);
-        LngLat b = CoordinatesUtils.toWGS84(x + 1, y, zoom);
-        int R = 6378137;
-        double distance = 2*R
-                * java.lang.Math.asin(java.lang.Math.sqrt(haversin(a.lat - b.lat)
-                + java.lang.Math.cos(b.lat)
-                * java.lang.Math.cos(a.lat)
-                * haversin(a.lng - b.lng)));
 
-        return (float) (500 * 512/distance);
-
-    }
-*/
     private float computeRadius(int x, int y, int zoom){
         int size_in_meters = 20;
         LngLat a = CoordinatesUtils.toWGS84(x, y, zoom);
         return (float)(size_in_meters/(156543.03392 * Math.cos(a.lat * Math.PI / 180) / Math.pow(2, zoom)));
     }
+
     public BufferedImage getImage(List<LngLat> reports, int x, int y, int zoom) {
-        BufferedImage toReturn = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
+        BufferedImage toReturn = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
         float radius = computeRadius(x,y,zoom);
 
 
@@ -65,7 +53,8 @@ public class HeatMapImage {
             Point<Float> position = onMap(report, x, y, zoom);
             g.fill(new Ellipse2D.Double(position.x - radius, position.y - radius, radius * 2, radius * 2));
         }
-
+        g.setColor(Color.GREEN);
+        g.draw(new Rectangle2D.Double(0,0,256,256));
         g.dispose();
         return toReturn;
     }
@@ -82,7 +71,7 @@ public class HeatMapImage {
         float posx = (float) ((lonEvent - longitudeTL) * 256 / (longitudeBR - longitudeTL));
         float posy = (float) ((latitudeTL - latEvent) * 256 / (latitudeTL - latitudeBR));
 
-
         return new Point<>(posx, posy);
     }
+
 }

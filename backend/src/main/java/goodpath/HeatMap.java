@@ -28,9 +28,9 @@ public class HeatMap {
 
     private ArrayList<LngLat> selectReports(int x, int y, int zoom) {
         int x_TL = x;
-        int x_BR = x + 1;
+        int x_BR = x + 2;
         int y_TL = y;
-        int y_BR = y + 1;
+        int y_BR = y + 2;
 
         if (x_TL > 0) {
             --x_TL;
