@@ -3,6 +3,7 @@ package goodpath;
 
 import com.goodpaths.common.Report;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,9 +13,23 @@ import goodpath.utils.LngLat;
 
 public class HeatMap {
     private final List<LngLat> reports;
+    private final Report.Type problemType;
+    private final Color color;
 
-    public HeatMap() {
+    public HeatMap(Report.Type problemType) {
         this.reports = new ArrayList<>();
+        this.problemType = problemType;
+
+        if(this.problemType == Report.Type.ACCESSIBILITY){
+            this.color = new Color(255,200,0,100);
+        }
+        else if(this.problemType == Report.Type.HARASSMENT){
+            this.color = new Color(255,0,0,100);
+        }
+        else{
+            System.out.println("ERROR");
+            this.color = new Color(0,0,0,0);
+        }
     }
 
     public void addReport(Report report) {
@@ -23,7 +38,7 @@ public class HeatMap {
 
     public BufferedImage getImage(int x, int y, int zoom, int imageSize) {
         List<LngLat> selected = selectReports(x, y, zoom);
-        return new HeatMapImage(imageSize).getImage(selected, x, y, zoom);
+        return new HeatMapImage(imageSize).getImage(selected, x, y, zoom, this.color);
     }
 
     private ArrayList<LngLat> selectReports(int x, int y, int zoom) {
@@ -75,6 +90,15 @@ public class HeatMap {
             } else {
                 coord = new LngLat(randomDouble(lng, delta), randomDouble(lat, delta));
             }
+            reports.add(coord);
+        }
+    }
+
+    public void populateSmartly(double lng, double lat) {
+        final double delta = 0.0003;
+        LngLat coord = null;
+        for(int i = 0; i < 20; i++) {
+            coord = new LngLat(randomDouble(lng, delta), randomDouble(lat, delta));
             reports.add(coord);
         }
     }

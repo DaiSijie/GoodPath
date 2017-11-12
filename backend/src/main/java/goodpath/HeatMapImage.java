@@ -32,7 +32,7 @@ public class HeatMapImage {
         return (float)(size_in_meters/(156543.03392 * Math.cos(a.lat * Math.PI / 180) / Math.pow(2, zoom)));
     }
 
-    public BufferedImage getImage(List<LngLat> reports, int x, int y, int zoom) {
+    public BufferedImage getImage(List<LngLat> reports, int x, int y, int zoom, Color color) {
         BufferedImage toReturn = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
         float radius = computeRadius(x,y,zoom);
 
@@ -40,7 +40,7 @@ public class HeatMapImage {
         Graphics2D g = toReturn.createGraphics();
 
 
-        g.setColor(new Color(255, 0, 0, 100));
+        g.setColor(color);
 
         RenderingHints rh = new RenderingHints(null);
         rh.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -53,8 +53,6 @@ public class HeatMapImage {
             Point<Float> position = onMap(report, x, y, zoom);
             g.fill(new Ellipse2D.Double(position.x - radius, position.y - radius, radius * 2, radius * 2));
         }
-        g.setColor(Color.GREEN);
-        g.draw(new Rectangle2D.Double(0,0,256,256));
         g.dispose();
         return toReturn;
     }
