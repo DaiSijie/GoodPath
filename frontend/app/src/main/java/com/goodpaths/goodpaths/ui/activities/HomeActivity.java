@@ -2,7 +2,9 @@ package com.goodpaths.goodpaths.ui.activities;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -176,6 +178,21 @@ public class HomeActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View view) {
                 dangerPointPoster.postCurrentPosition(Report.Type.ACCESSIBILITY);
+            }
+        });
+
+        localizeMeButton.setOnLongClickListener(new View.OnLongClickListener(){
+
+            @Override
+            public boolean onLongClick(View view) {
+                Vibrator v = (Vibrator) getSystemService(HomeActivity.VIBRATOR_SERVICE);
+                v.vibrate(500);
+                String uri = "tel:123456789";
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse(uri));
+                startActivity(intent);
+
+                return true;
             }
         });
 
