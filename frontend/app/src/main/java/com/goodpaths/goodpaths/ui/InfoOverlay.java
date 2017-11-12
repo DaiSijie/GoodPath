@@ -19,7 +19,7 @@ public class InfoOverlay {
             builder = new AlertDialog.Builder(context);
         }
         builder.setTitle("About")
-                .setMessage("Whenever you feel unsafe, just tap on the button and the position will be saved. On the map you will see all dangerous area.")
+                .setMessage("Welcome to GoodPath! This app is here to help you and other people find safer and easier ways to get around your town when walking alone or in small groups. If you ever feel unsafe in a place, you can mark it as unsafe using the bottom right button. You can also mark places that are hard to access for people with reduced mobility. You can switch between those two modes using ")
                 .setPositiveButton("Got it!", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // continue with delete
