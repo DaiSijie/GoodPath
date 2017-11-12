@@ -1,12 +1,9 @@
 package goodpath;
 
 
-import com.goodpaths.common.Report;
-
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Paint;
-import java.awt.RadialGradientPaint;
 import java.awt.RenderingHints;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
@@ -59,14 +56,19 @@ public class HeatMapImage {
         Graphics2D g = toReturn.createGraphics();
 
 
-        g.setColor(Color.RED);
+        g.setColor(new Color(255, 0, 0, 100));
 
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        RenderingHints rh = new RenderingHints(null);
+        rh.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        rh.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        rh.put(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+        rh.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g.addRenderingHints(rh);
 
         for (LngLat report : reports) {
             Point<Float> position = onMap(report, x, y, zoom);
-            paint = new RadialGradientPaint(position.x, position.y, radius, fractions, colors);
-            g.setPaint(paint);
+            //paint = new RadialGradientPaint(position.x, position.y, radius, fractions, colors);
+            //g.setPaint(paint);
             g.fill(new Ellipse2D.Double(position.x - radius, position.y - radius, radius * 2, radius * 2));
             System.out.println(position.x + " " + position.y);
         }
